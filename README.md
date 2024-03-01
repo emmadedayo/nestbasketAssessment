@@ -23,6 +23,7 @@ cd user-microservice
 composer install
 cp .env.example .env
 php artisan key:generate
+touch storage/logs/laravel.log
 ```
 ensure you are in the `user-microservice` folder after that 
 5. Go back to the root of the project directory and navigate to the `notification-microservice` folder
@@ -35,6 +36,7 @@ cd notification-microservice
 composer install
 cp .env.example .env
 php artisan key:generate
+touch storage/logs/laravel.log
 ```
 ensure you are in the `notification-microservice` folder after that
 7. Go back to the root of the project directory and be sure you are seeing the `docker-compose.yml` file
