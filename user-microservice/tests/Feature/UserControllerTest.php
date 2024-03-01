@@ -28,8 +28,7 @@ class UserControllerTest extends TestCase
             'lastName' => $this->faker->lastName,
             'email' => $this->faker->email,
         ];
-        $response = $this->json('POST', route('user.create'), $userData);
-
+        $response = $this->post('/user/add', $userData);
         $response->assertStatus(Response::HTTP_OK);
         $response->assertJson(['message' => 'User created successfully']);
     }

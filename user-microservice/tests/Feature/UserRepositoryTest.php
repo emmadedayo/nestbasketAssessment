@@ -4,12 +4,13 @@ namespace Tests\Feature;
 
 use App\Domains\User\Models\User;
 use App\Domains\User\Repositories\UserRepository;
+use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class UserRepositoryTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, WithFaker;
 
     /** @test */
     public function it_can_create_user()

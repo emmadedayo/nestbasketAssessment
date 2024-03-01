@@ -27,7 +27,7 @@ class CreateUserRequest extends FormRequest
             //
             'firstName' => 'required|string',
             'lastName' => 'required|string',
-            'email' => 'required|email',
+            'email' => 'required|email:rfc,dns|unique:users,email',
         ];
     }
 

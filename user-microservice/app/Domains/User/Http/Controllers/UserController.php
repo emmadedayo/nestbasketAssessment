@@ -20,8 +20,6 @@ class UserController extends Controller
     public function createUser(CreateUserRequest $request)
     {
         $data = $request->validated();
-        //append auto generated email with random string
-        $data['email'] = $data['email'] . '@' . uniqid() . '.com';
         $this->usersService->createUser($data);
 
         return response()->json(['message' => 'User created successfully']);

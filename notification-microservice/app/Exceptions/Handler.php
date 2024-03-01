@@ -1,9 +1,9 @@
 <?php
-
 namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Throwable;
+use Illuminate\Http\JsonResponse;
 
 class Handler extends ExceptionHandler
 {
@@ -19,12 +19,34 @@ class Handler extends ExceptionHandler
     ];
 
     /**
-     * Register the exception handling callbacks for the application.
+     * Render an exception into an HTTP response.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param \Throwable $exception
+     * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function register(): void
+    public function render($request, Throwable $exception)
     {
-        $this->reportable(function (Throwable $e) {
-            //
-        });
+        if ($exception instanceof \Exception) {
+            return $this->renderJsonResponse($exception);
+        }
+
+        return parent::render($request, $exception);
+    }
+
+    /**
+     * Render an exception as a JSON response.
+     *
+     * @param \Exception $exception
+     * @return \Illuminate\Http\JsonResponse
+     */
+    protected function renderJsonResponse(\Exception $exception)
+    {
+        $statusCode = method_exists($exception, 'getStatusCode') ? $exception->getStatusCode() : 500;
+
+        return response()->json([
+            'message' => $exception->getMessage(),
+            'status_code' => $statusCode,
+        ], $statusCode);
     }
 }
