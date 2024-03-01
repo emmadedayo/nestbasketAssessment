@@ -1,22 +1,16 @@
 <?php
+
 namespace App\Exceptions;
 
+use Exception;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
-use Throwable;
+use Throwable; // Add this import
 use Illuminate\Http\JsonResponse;
+use PhpAmqpLib\Exception\AMQPIOException;
 
 class Handler extends ExceptionHandler
 {
-    /**
-     * The list of the inputs that are never flashed to the session on validation exceptions.
-     *
-     * @var array<int, string>
-     */
-    protected $dontFlash = [
-        'current_password',
-        'password',
-        'password_confirmation',
-    ];
+    // ...
 
     /**
      * Render an exception into an HTTP response.
@@ -25,22 +19,35 @@ class Handler extends ExceptionHandler
      * @param \Throwable $exception
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function render($request, Throwable $exception)
+    public function render($request, Throwable $exception) // Update the type-hint here
     {
-        if ($exception instanceof \Exception) {
-            return $this->renderJsonResponse($exception);
+        if ($exception instanceof AMQPIOException) {
+            return $this->renderAmqpJsonResponse($exception);
         }
 
+        if ($exception instanceof Exception) {
+            return $this->renderJsonResponse($exception);
+        }
         return parent::render($request, $exception);
     }
 
     /**
      * Render an exception as a JSON response.
      *
-     * @param \Exception $exception
+     * @param \Throwable $exception // Update the type-hint here
      * @return \Illuminate\Http\JsonResponse
      */
-    protected function renderJsonResponse(\Exception $exception)
+    protected function renderJsonResponse(Throwable $exception) // Update the type-hint here
+    {
+        $statusCode = method_exists($exception, 'getStatusCode') ? $exception->getStatusCode() : 500;
+
+        return response()->json([
+            'message' => $exception->getMessage(),
+            'status_code' => $statusCode,
+        ], $statusCode);
+    }
+
+    protected function renderAmqpJsonResponse(AMQPIOException $exception)
     {
         $statusCode = method_exists($exception, 'getStatusCode') ? $exception->getStatusCode() : 500;
 

@@ -32,6 +32,7 @@ services:
   user-service-microservice:
     image: user-service-microservice:1.0.3  # Updated version
     build: user-microservice
+    container_name: user-service-microservice
     ports:
       - "8000:8000"
     env_file:
@@ -58,13 +59,28 @@ services:
     build:
       context: notification-microservice
       dockerfile: ./Dockerfile
-    command: 'php artisan rabbitmq:consume'
+    command: sh -c 'sleep 80 && php artisan rabbitmq:queue-declare user-server && php artisan rabbitmq:consume & tail -f storage/logs/laravel.log'
+    restart: on-failure
+    container_name: notification-microservice
     depends_on:
       - rabbitmq
     networks:
       - server_network
     env_file:
       - notification-microservice/.env
+
+  # Migration Service
+  migration-service:
+    image: user-service-microservice:1.0.3  # Use the same image as user-service-microservice
+    build: user-microservice
+    env_file:
+      - user-microservice/.env
+    command: sh -c 'sleep 30 && php artisan migrate && sleep infinity'
+    restart: on-failure
+    depends_on:
+      - database
+    networks:
+      - server_network
 
 networks:
   server_network:
